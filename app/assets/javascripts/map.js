@@ -3,6 +3,8 @@
 // g_districts contains district information
 var g_data, g_districts;
 
+var app = app || {};
+
 /*
 ==========================================
 ==========================================
@@ -12,34 +14,37 @@ var g_data, g_districts;
 ==========================================
 ==========================================
 */
-var prj = 'codeforamerica.hmebo8ll'; // Mapbox map id string
-var MAP_CENTER_LOCATION = [33.4019, -111.78];
-var MAP_MARKER_LOCATION = [33.42, -111.835];
-var MAP_START_ZOOM = 12;
-var DISTRICT_FILL = 'white';
 
-var map = L.mapbox.map(
-  'map',
-  prj,
-  {
-    center: MAP_CENTER_LOCATION,
-    zoom: MAP_START_ZOOM,
-    minZoom: 6,
-    maxZoom: 18,
-    scrollWheelZoom: false,
-  }
-);
+var map, marker, districtLayer, otherDistrictsLayer;
 
-var districtLayer = L.mapbox.featureLayer(null, {}).addTo(map);
-var otherDistrictsLayer;
+function mapInitialize() {
 
-var marker = L.marker(MAP_MARKER_LOCATION, {
-      icon: L.mapbox.marker.icon({'marker-color': 'CC0033'}),
-      draggable: true
-      });
-marker.addTo(map);
-marker.bindPopup("<b>Click and drag me!</b>").openPopup();
-marker.on('dragend', onDragEnd);
+  map = L.mapbox.map(
+    'map',
+    config.map.prj,
+    {
+      center: config.map.center_location,
+      zoom: config.map.start_zoom,
+      minZoom: 6,
+      maxZoom: 18,
+      scrollWheelZoom: false,
+    }
+  );
+
+  districtLayer = L.mapbox.featureLayer(null, {}).addTo(map);
+
+  marker = L.marker(config.map.marker_location, {
+        icon: L.mapbox.marker.icon({'marker-color': 'CC0033'}),
+        draggable: true
+        });
+  marker.addTo(map);
+  marker.bindPopup("<b>Click and drag me!</b>").openPopup();
+  marker.on('dragend', onDragEnd);
+
+  fetchDistricts();
+}
+
+
 
 /*
 ==========================================
@@ -49,7 +54,7 @@ marker.on('dragend', onDragEnd);
 
 function onDragEnd() {
     var ll = marker.getLatLng();
-    updatePage({'lat': ll.lat, 'long': ll.lng});
+    updatePage({'lat': ll.lat, 'lng': ll.lng});
 }
 
 /* Expects an object of type tomsline which is what the tom-geocoder service returns.
@@ -82,7 +87,7 @@ function textToGeo(text) {
    $.ajax({
     type: 'POST',
     crossDomain: true,
-    url: 'http://findlines.herokuapp.com/',
+    url: 'http://findlines-staging.herokuapp.com/',
     data: { fileupload: text},
     dataType: 'json',
     success: linesToMap,
@@ -113,34 +118,71 @@ function resetHighlight(e) {
 
 
 function jumpToFeature(e) {
-  updatePage({'lat': e.latlng.lat, 'long': e.latlng.lng});
+  updatePage({'lat': e.latlng.lat, 'lng': e.latlng.lng});
   console.log("jumping to district ");
+}
+
+var convertESRItoGeoJSON = function (esriJSON) {
+  var geoJSON = { type: "FeatureCollection", features: [] };
+  _.each(esriJSON.features, function(feature) {
+    geoJSON.features.push(Terraformer.ArcGIS.parse(feature /* {sr: 4326 } */))
+  });
+  return geoJSON;
+}
+
+// fetch districts, then add them to map
+function fetchDistricts() {
+   $.ajax({
+    type: 'GET',
+    crossDomain: true,
+    url: config.map.districtsQueryESRIurl,
+    dataType: 'json',
+    success: addDistrictsToMap,
+  });
+}
+
+
+// after the districts have been fetched, if a particular district was set, highlight it
+var highlightCurrentDistrict = function () {
+  // highlight the selected district
+  if (typeof app.districts != "undefined" &&
+      typeof app.district != "undefined" && app.district != null) {
+    var district = _.find(
+        app.districts.features,
+        function (f) { return f.properties.DISTRICTS === "DISTRICT " + app.district; }
+      );
+    district.properties.fill = config.map.district_fill;
+    districtLayer.setGeoJSON(district);
+    districtLayer.setFilter(function() { return true; });
+    var center;
+    if ((typeof app.data.lat === "undefined" || !app.data.lat) &&
+        (typeof app.data.address === "undefined" || !app.data.address)) {
+      center = districtLayer.getBounds().getCenter();
+    } else {
+      center = L.latLng(app.data.lat, app.data.lng);
+    }
+    marker.setLatLng(center).closePopup();
+    map.setView(center);
+  }
 }
 
 
 function addDistrictsToMap(districts) {
 
-  g_districts = otherDistrictsJSON = {
-    type: "FeatureCollection",
-    features: _.map(districts, function(district) {
-      return {
-        type: "Feature",
-        geometry: jQuery.parseJSON(district.geom),
-        properties: {
-          name: district.name,
-          twit_name: district.twit_name,
-          twit_wdgt: district.twit_wdgt,
-        },
-        id: district.id,
-      }
-    }),
-  };
+  // if it looks like districts is in ESRI JSON, convert it first
+  var geoJSONdistricts;
+  if (typeof districts.geometryType != "undefined" &&
+      districts.geometryType === "esriGeometryPolygon") {
+    geoJSONdistricts = convertESRItoGeoJSON(districts);
+  } else {
+    geoJSONdistricts = districts;
+  }
+  app.districts = geoJSONdistricts;
 
-
-  otherDistrictsLayer = L.geoJson(otherDistrictsJSON, {
+  otherDistrictsLayer = L.geoJson(geoJSONdistricts, {
     style: function (feature) {
       return {
-          fillColor: DISTRICT_FILL,
+          fillColor: config.map.district_fill,
           weight: 1,
           opacity: 0.7,
           fillOpacity: 0.2,
@@ -156,6 +198,10 @@ function addDistrictsToMap(districts) {
       });
     }
   }).addTo(map);
+
+  highlightCurrentDistrict();
+
+
 
   // How to add static label at center of polygon (from web example)
   // label = new L.Label()

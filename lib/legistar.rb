@@ -1,3 +1,5 @@
+require 'pp'
+
 module Legistar
 
 	module_function
@@ -9,8 +11,9 @@ module Legistar
 
 	# set up logging and Legistar base settings
   def initialize
+    logfile = "log/fetch-legistar.log"
   	@@log = Logger.new(STDOUT)
-    @@fileLog = Logger.new("log/fetch-legistar.log")
+    @@fileLog = Logger.new(logfile)
     @@log.level = Logger::DEBUG
     @@fileLog.level = Logger::DEBUG
     @@base_url = 'http://webapi.legistar.com'
@@ -25,12 +28,28 @@ module Legistar
       conn.adapter Faraday.default_adapter
       conn.request :retry, max: 5, interval: 0.05, interval: 0.05, interval_randomness: 0.5, backoff_factor: 2
 	  end
+
+    @@log.info("Connection opened to #{@@base_url} and logging to #{logfile}")
 	end
 
   # given the URL of one of the Legistar documentation pages,
   # return the documented structure of the endpoint in a format
   # that is compatible with the Rails model creation migrations.
+  #
+  # Example for getting the structure of the Event endpoint:
+  # rake legistar_all:structure[http://webapi.legistar.com/Help/Api/GET-v1-Client-Events]
+  # but the output will be like
+  # t.integer :event_id
+  # t.string :event_guid
+  # ...
+  # so you might want to strip off 'event':
+  # rake legistar_all:structure[http://webapi.legistar.com/Help/Api/GET-v1-Client-Events,"Event"]:
+  # t.integer :id
+  # t.string :guid
+  # ...
+  # Note! Make sure not to have a space between the arguments to the rake task.
   def fetch_structure(url, endpoint_prefix_to_strip)
+    endpoint_prefix_to_strip = endpoint_prefix_to_strip || ""
     log = Logger.new('log/faraday.log')
     connection = Faraday.new(:url => "https://api.import.io") do |conn|
       conn.request  :url_encoded             # form-encode POST params
@@ -132,6 +151,7 @@ module Legistar
 
       full_url = @@base_url + @@url_path
       log_info("url: #{full_url}")
+      print "."
 
       response = @@connection.get(@@url_path)
       raise unless response.status == 200
@@ -157,16 +177,16 @@ module Legistar
 		  attrs['source_id'] = attrs.delete('id')
       @@extras.each { |k,v| attrs[k] = v } if @@extras
 
-		  pretty_attributes = pp attrs
+		  pretty_attributes = PP.pp attrs, dump = ""
 		  msg = "Attempting creation of #{@@endpoint_class.to_s} with attrs: #{pretty_attributes}"
 		  log_info(msg)
 
-		  @@endpoint_class.create(attrs)
+		  @@endpoint_class.find_or_create_by(attrs)
 		end
 	end
 
 	def self.log_info(msg)
-		@@log.info(msg)
+		@@log.info(msg) if not Rails.env.production?
 		@@fileLog.info(msg)
 	end
 

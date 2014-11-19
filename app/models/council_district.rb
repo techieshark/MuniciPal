@@ -1,36 +1,28 @@
 class CouncilDistrict < ActiveRecord::Base
   has_many :event_items
 
-  COORD_SYS_REF = 4326;   # The coordinate system that will be used as the reference and is now Latitude and Longitude Coord System
-  COORD_SYS_AREA = 2278;  # The coordinate system used in the data Texas South Central Coordinate System
-  COORD_SYS_ZONE = 0;     # The coordinate system used in the actual data but somehow it was wiped to 0, so put it back into the same one to check
+  COORD_SYS_REF = 4326;   # The coordinate system that will be used as the reference and is now Latitude and longitude Coord System
 
-  def self.inDistrict? lat, long
-    # figure out if it is in a specific area in 
-    @spec_area = CouncilDistrict.where("ST_Contains(geom, ST_SetSRID(ST_Transform(ST_SetSRID(ST_MakePoint(?, ?), ?), ?), ?))",
-                                              long,
-                                              lat,
-                                              COORD_SYS_REF,
-                                              COORD_SYS_AREA,
-                                              COORD_SYS_ZONE)
+  def self.getDistrict lat, lng
+    service_url = "https://services2.arcgis.com/1gVyYKfYgW5Nxb1V/ArcGIS/rest/services/MesaCouncilDistricts/FeatureServer"
+    service = Geoservice::MapService.new(url: service_url)
+    params = {
+      geometry: [lng,lat].join(','),
+      geometryType: "esriGeometryPoint",
+      inSR: 4326,
+      spatialRel: "esriSpatialRelIntersects",
+      units: "esriSRUnit_Meter",
+      returnGeometry: false
+    }
+    @response = service.query(0, params)
+    puts @response["features"]
 
-    return @spec_area.exists?
+    if @response["features"].empty?
+      @district_number = nil
+    else
+      @district_number = @response["features"][0]["attributes"]["DISTRICT"]
+    end
+    return @district_number
   end
- 
-  def self.getDistrict lat, long
-    # figure out if it is in a specific area in historical district
-    @area_in_geojson = CouncilDistrict.find_by_sql("select id, name, twit_name, twit_wdgt, ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom, #{COORD_SYS_AREA}), #{COORD_SYS_REF}))
-                                                        from council_districts 
-                                                        where ST_Contains(geom,
-                                                        ST_SetSRID(ST_Transform(ST_SetSRID(ST_MakePoint(#{long}, #{lat}),#{COORD_SYS_REF}), #{COORD_SYS_AREA}), #{COORD_SYS_ZONE}))")
-    return @area_in_geojson.first
-  end
-
-  def self.getDistricts
-    # The user might want to map all the districts, so send 'em all.
-    @districts_as_geojson = CouncilDistrict.find_by_sql("select id, name, twit_name, twit_wdgt, ST_AsGeoJSON(ST_Transform(ST_SetSRID(geom, #{COORD_SYS_AREA}), #{COORD_SYS_REF})) as geom from council_districts");
-    return @districts_as_geojson;
-  end
-
 
 end

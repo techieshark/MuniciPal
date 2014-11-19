@@ -1,11 +1,10 @@
-require "net/http"
-require "uri"
+require 'legistar'
 
 namespace :legistar_matters do
   desc "Load Legistar matters into database from REST API"
   task :load => :environment do
     # DEBUG: filter items returned for quicker development cycles
-    filter = "?$filter=MatterIntroDate+ge+datetime'2014-07-05'+and+MatterIntroDate+lt+datetime'2014-10-01'"
+    filter = "?$filter=MatterIntroDate+ge+datetime'2014-09-01'+and+MatterIntroDate+lt+datetime'2015-01-01'"
     Legistar.initialize()
     Legistar.fetch_collection('Matters', filter, 'Matter', Matter)
   end

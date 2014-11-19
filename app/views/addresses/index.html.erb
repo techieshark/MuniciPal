@@ -14,16 +14,6 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
-<div id="topbar" class="pure-menu pure-menu-open pure-menu-horizontal pure-menu-pull-right">
-  <a href="/" class="pure-menu-heading"><img src="/assets/logo.png" alt="MuniciPal"></a>
-    <ul>
-      <li><a href="#">Mayor</a></li>
-      <li><a href="#">City Manager</a></li>
-      <li><a href="#">Your District</a></li>
-      <li><a href="#">About</a></li>
-    </ul>
-</div>
-
 <div class="pure-g">
   <!--HEADER CONTAINER-->
   <div class="header-container pure-u-1 pure-u-lg-1-2 pure-u-md-3-5 l-box-2x">
@@ -37,12 +27,12 @@
       <div class="address-box pure-g">
         <label for="address" class="pure-u-1">Tell Me About My Council District:</label>
         <div id="address-container" class="pure-u-xl-19-24 pure-u-lg-17-24 pure-u-1">
-          <input id="address" name="address" type="text" placeholder="Your Mesa Address"/>
+          <input id="address" name="address" type="text" placeholder="Your Mesa Address" data-google-places=true/>
         </div>
         <div id="search-btn-container" class="pure-u-xl-5-24 pure-u-lg-7-24 pure-u-1">
           <button id="search-btn" class="pure-button pure-button-primary">Search</button>
         </div>
-        <p class="descript pure-u-1">example: <a href="?address=455%20West%20Baseline%20Road,%20Mesa,%20AZ%2085210,%20USA&lat=33.3781827&long=-111.8430414">455 W Baseline Rd, Mesa, AZ</a></p>
+        <p class="descript pure-u-1">example: <a href="/?address=455%20West%20Baseline%20Road,%20Mesa,%20AZ%2085210,%20USA&lat=33.3781827&lng=-111.8430414">455 W Baseline Rd, Mesa, AZ</a></p>
       </div>
     </div>
   </div>
@@ -53,181 +43,21 @@
   </div>
 </div> <!-- end header/search grid -->
 
-<div class="results pure-g">
-  <h1 class="you-live-in pure-u-1" id="answer">We don't yet know where you live.</h1>
-  
-  <!-- Picture and contact info -->
-  <div class="pure-u-md-1-2 pure-u-1 l-box">
-    <img id="council-picture" class="pure-img hide-sm" src="http://placehold.it/650x450/607d8b/ffffff&text=loading" alt="Placeholder">
-    <div class="contact-info">
-      <div class="contact-method">
-        <span class="fa fa-phone fa-lg fa-fw"></span><span id="council-phone">555-555-1234</span>
-      </div>
-      <div class="contact-method">
-        <span class="fa fa-envelope fa-lg fa-fw"></span><span id="council-email">?@mesaaz.gov</span>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Details box -->
-  <div class="pure-u-md-1-2 pure-u-1 l-box">
-    <h2 id="council-member">Some Person</h2>
-    <div id="results-area">
-      <div id="controls" class="pure-menu pure-menu-open pure-menu-horizontal">
-        <ul>
-          <li class="pure-menu-selected"><a id="controls-bio" data-card="bio-card" href="#">Bio</a></li>
-          <li><a id="controls-twitter" data-card="twitter-card" href="#">Twitter</a></li>
-          <li><a id="controls-facebook" data-card="facebook-card" href="#">Facebook</a></li>
-        </ul>
-      </div> <!-- end controls -->
-
-      <section class="container">
-        <div id="cards">
-
-          <div class="card" id="bio-card">
-            <span class="bio">foo bar</span>
-          </div>
-
-          <div class="card" id="facebook-card">
-            <div class="fb-widget" id="facebook-1">
-              <div class="fb-like-box" data-href="https://www.facebook.com/CouncilmemberDaveRichins" data-width="100%" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-            <div class="fb-widget" id="facebook-2">
-              <div class="fb-like-box" data-href="https://www.facebook.com/CouncilmemberBenelli" data-width="350" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-            <div class="fb-widget" id="facebook-3">
-              <div class="fb-like-box" data-href="https://www.facebook.com/councilmember.kavanaugh" data-width="350" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-            <div class="fb-widget" id="facebook-4">
-              <div class="fb-like-box" data-href="https://www.facebook.com/CouncilmemberChrisGlover" data-width="350" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-            <div class="fb-widget" id="facebook-5">
-              <div class="fb-like-box" data-href="https://www.facebook.com/CouncilmemberDavidLuna" data-width="350" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-            <div class="fb-widget" id="facebook-6">
-              <div class="fb-like-box" data-href="https://www.facebook.com/CouncilmemberScottSomers" data-width="350" data-height="468" data-colorscheme="light" data-show-faces="true" data-header="false" data-stream="true" data-show-border="false"></div>
-            </div>
-          </div>
-
-          <div class="card" id="twitter-card">
-            <div class="twit-widget">
-             <a class="twitter-timeline" href="https://twitter.com/techieshark/lists/mesaaz-gov" data-widget-id="465957406787112960" data-chrome="noheader">Tweets from https://twitter.com/techieshark/lists/mesaaz-gov</a>
-            </div>
-            <div class="twit-widget" id="council-1" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/dlrichins" data-widget-id="465935532589993984" data-chrome="noheader">Tweets by @dlrichins</a>
-            </div>
-            <div class="twit-widget" id="council-2" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/MesaDistrict2" data-widget-id="465941398470922240" data-chrome="noheader">Tweets by @MesaDistrict2</a>
-            </div>
-            <div class="twit-widget" id="council-3" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/MesaDistrict3" data-widget-id="465941592985968641" data-chrome="noheader">Tweets by @MesaDistrict3</a>
-            </div>
-            <div class="twit-widget" id="council-4" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/MesaDistrict4" data-widget-id="465941739635613696" data-chrome="noheader">Tweets by @MesaDistrict4</a>
-            </div>
-            <div class="twit-widget" id="council-5" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/MesaDistrict5" data-widget-id="465941843922792448" data-chrome="noheader">Tweets by @MesaDistrict5</a>
-            </div>
-            <div class="twit-widget" id="council-6" style="display:none" >
-              <a class="twitter-timeline" href="https://twitter.com/MesaDistrict6" data-widget-id="465941964072828928" data-chrome="noheader">Tweets by @MesaDistrict6</a>
-            </div>
-          </div>
-
-        </div> <!-- end cards -->
-      </section>
-    </div> <!-- end results area -->
-  </div>
-
-  <div id="legislative" class="pure-u-1">
-    <div class="legislative-header l-box">
-      <h1>Items Being Discussed in Your District</h1>
-      <p>View all upcoming items that will be voted on in your district and city.<br>
-        Share your opinion on the decisions being made that affect you.</p>
-
-      <a href="http://tomcfa.s3.amazonaws.com/participate.html">Ways you can participate <span class="fa fa-caret-right fa-lg"></span></a>
-    </div>
-
-    <div class="sort-by pure-menu pure-menu-open pure-menu-horizontal">
-      <div class="pure-menu-heading">Sort by: </div>
-      <ul>
-        <li class="pure-menu-selected"><a href="#">Date</a></li>
-        <li><a href="#">Distance</a></li>
-        <li><a href="#">Activity</a></li>
-      </ul>
-    </div>
-
-    <div class="legislative-items"></div>
-  </div>
-
+<div id="results">
+  <%= render "layouts/person" %>
+  <%= render "layouts/legislative_items" %>
 </div> <!-- end results -->
 
-<div class="footer inverted pure-g l-box">
-  <div class="pure-u-1">
-    <h5> A project by Code for America in partnership with the City of Mesa</h5>
-    <h5><a href="mailto:mesa@codeforamerica.org">mesa@codeforamerica.org</a></h5>
-  </div>
-</div>
+<%= render "layouts/mustache_templates" %>
 
-<script id="legislation-template" type="x-tmpl-mustache">
-
-  <article class="legislation pure-g" id={{matterId}}>
-
-<!-- ICON COLUMN -->
-    <div class="pure-u-md-1-24 hide-sm">
-      <i class="icon fa {{icon}} fa-2x"></i>
-    </div>
-
-<!-- INFO/DETAILS COLUMN -->
-    <div class="pure-u-md-18-24 pure-u-1">
-      <div class="item-name pure-g">
-        <div class="pure-u-md-3-4 pure-u-1">
-          <div class="agenda-basics">
-            <h4 class="text">{{title}}</h4>
-            <div id="event-details-{{matterId}}"></div>
-          </div>
-        </div>
-        <div class="distance pure-u-md-1-4 pure-u-1">
-          <div class="geo-scope">{{scope}}</div>
-          <div class="distance">{{distance}} miles away</div>
-        </div>
-      </div>
-
-      <div class="title">
-        {{{body}}}
-        <div class="matter-comments"><a class="comments" data-matter-id="{{matterId}}" href="#">Share your opinion <span class="fa fa-caret-down"></span></a></div>
-      </div>
-      <div class="comments"></div>
-    </div>
-<!-- ATTACHMENTS COLUMN -->
-
-      <div class="pure-u-md-5-24 pure-u-1">
-        <div class="matter-attachments" id="attachments-{{matterId}}"></div>
-      </div>
-    </div>
-
-  </article>
-</script>
-
-<script id="event-details-template" type="x-tmpl-mustache">
-  <div class="event-date">{{date}}, {{time}}</div>
-  <!--
-  <h5>Next Meeting</h5>
-  <ul>
-    <li>{{date}}</li>
-    <li>{{time}}</li>
-    <li>{{name}}</li>
-    <li>{{location}}</li>
-  </ul>
-  -->
-</script>
-
-<script id="template-attachments" type="x-tmpl-mustache">
-  <a href="#" class="attachments" data-matter-id="{{matterId}}">Attachments ({{attachmentCount}}) <span class="fa fa-caret-down"></span></a>
-  <ul class="attachments">
-    {{#attachments}}
-      <li><a href="{{link}}">{{name}}</a></li>
-    {{/attachments}}
-  </ul>
-</script>
-
+<%= javascript_include_tag "http://techieshark.github.io/council-info/people.js" %>
 <%= javascript_include_tag "addresses", "data-turbolinks-track" => true %>
+
+<script>
+
+$(document).ready(function() {
+  var response = <%= raw @response.to_json %>;
+  indexDocReady(response);
+})
+
+</script>
